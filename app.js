@@ -1,11 +1,8 @@
-/*
- * Weather Now — app.js
- * Uses Open-Meteo API (free, no API key required)
- * Uses Open-Meteo Geocoding API for city search
- */
+ // Weather Now — app.js
+ // Uses Open-Meteo Geocoding API for city search
+ 
 const ICON_PATH = 'assets/images/';
 const ICON_EXT  = '.webp';
-
 
 const ICON_MAP = {
   0:  { day: 'icon-sunny',              night: 'icon-overcast'             },
@@ -38,7 +35,7 @@ const ICON_MAP = {
   99: { day: 'icon-storm',              night: 'icon-storm'                },
 };
 
-/* STATE */
+/* State */
 const S = { IDLE: 'idle', LOADING: 'loading', LOADED: 'loaded', ERROR: 'error', NO_RESULTS: 'no-results' };
 
 let appState      = S.IDLE;
@@ -51,7 +48,7 @@ let searchTimer   = null;
 // Unit prefs — default metric
 let units = { temp: 'celsius', wind: 'kmh', precip: 'mm' };
 
-/* DOM REFS */
+/* Dom Refs */
 const $ = id => document.getElementById(id);
 
 const dom = {
@@ -89,13 +86,13 @@ const dom = {
   dayPickerDropdown: $('dayPickerDropdown'),
 };
 
-/* INIT */
+/* Init */
 function init() {
   bindEvents();
   setState(S.IDLE);
 }
 
-/* EVENT BINDING */
+/* Event Binding */
 function bindEvents() {
   dom.searchInput.addEventListener('input', onSearchInput);
   dom.searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') triggerSearch(); });
@@ -122,9 +119,7 @@ function bindEvents() {
   });
 }
 
-/* ═══════════════════════════════════════════════════════
-   SEARCH
-═══════════════════════════════════════════════════════ */
+/* Search & Geocoding */
 function onSearchInput() {
   const q = dom.searchInput.value.trim();
   clearTimeout(searchTimer);
@@ -174,7 +169,6 @@ async function fetchSuggestions(query, autoSelect) {
   } catch {
     setSearchProgress(false);
     hideSearchDropdown();
-    // Only show full-page error if there's no existing weather data
     if (!weatherData) {
       setState(S.ERROR);
     } else {
@@ -205,9 +199,7 @@ function pickLocation(loc) {
   fetchWeather(loc.latitude, loc.longitude, loc.name, loc.country);
 }
 
-/* ═══════════════════════════════════════════════════════
-   WEATHER FETCH
-═══════════════════════════════════════════════════════ */
+/* Weather Fetch */
 async function fetchWeather(lat, lon, name, country) {
   const hadData = !!weatherData;
   setState(S.LOADING);
@@ -235,7 +227,6 @@ async function fetchWeather(lat, lon, name, country) {
     setState(S.LOADED);
     renderAll(data);
   } catch {
-    // If we had data before, restore it instead of wiping the whole page
     if (hadData && weatherData) {
       setState(S.LOADED);
       renderAll(weatherData);
@@ -246,9 +237,7 @@ async function fetchWeather(lat, lon, name, country) {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   RENDER
-═══════════════════════════════════════════════════════ */
+/* Render */
 function renderAll(data) {
   renderCard(data);
   renderStats(data);
@@ -264,7 +253,6 @@ function renderCard(data) {
   dom.cardCity.textContent = `${data._name}, ${data._country}`;
   dom.cardDate.textContent = formatDateFull(c.time.split('T')[0]);
 
-  // Use a stable container ID — avoids stale dom.cardIcon reference on repeat searches
   const cardRight = document.getElementById('cardRight');
   cardRight.innerHTML = iconHTML(c.weathercode, isDay, 'card-weather-icon') +
     `<div class="card-temp" id="cardTemp">${formatTemp(c.temperature_2m)}°</div>`;
@@ -385,9 +373,7 @@ function renderHourly(data, dayIdx) {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   STATE MANAGEMENT
-═══════════════════════════════════════════════════════ */
+/* State MGT */
 function setState(newState) {
   appState = newState;
 
@@ -433,9 +419,7 @@ function setState(newState) {
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   UNITS
-═══════════════════════════════════════════════════════ */
+/* Units */
 function selectUnit(group, value) {
   units[group] = value;
 
@@ -479,9 +463,7 @@ function reRenderUnits() {
   renderHourly(weatherData, selDayIdx);
 }
 
-/* ═══════════════════════════════════════════════════════
-   CONVERSION HELPERS
-═══════════════════════════════════════════════════════ */
+/* Conversion */
 function formatTemp(c) {
   if (c == null) return '—';
   if (units.temp === 'fahrenheit') return Math.round(c * 9 / 5 + 32);
@@ -500,9 +482,7 @@ function formatPrecip(mm) {
   return `${mm % 1 === 0 ? mm : mm.toFixed(1)} mm`;
 }
 
-/* ═══════════════════════════════════════════════════════
-   UTIL HELPERS
-═══════════════════════════════════════════════════════ */
+/* Utils */
 function getIconPath(code, isDay = true) {
   const entry = ICON_MAP[code] ?? ICON_MAP[2];
   const name  = isDay ? entry.day : (entry.night ?? entry.day);
@@ -537,9 +517,7 @@ function wmoDescription(code) {
   return map[code] ?? 'Unknown';
 }
 
-/* ═══════════════════════════════════════════════════════
-   TOAST NOTIFICATION
-═══════════════════════════════════════════════════════ */
+/* Toast Notification */
 function showToast(msg) {
   let toast = document.getElementById('searchToast');
   if (!toast) {
@@ -554,9 +532,7 @@ function showToast(msg) {
   toast._timer = setTimeout(() => toast.classList.remove('visible'), 4000);
 }
 
-/* ═══════════════════════════════════════════════════════
-   DROPDOWN HELPERS
-═══════════════════════════════════════════════════════ */
+/* Dropdown Toggles */
 function toggleUnitsDropdown() {
   const open = dom.unitsDropdown.classList.toggle('open');
   dom.unitsBtn.setAttribute('aria-expanded', open);
@@ -587,18 +563,14 @@ function toggleDayPicker() {
   dd.style.display = dd.style.display === 'block' ? 'none' : 'block';
 }
 
-/* ═══════════════════════════════════════════════════════
-   RETRY
-═══════════════════════════════════════════════════════ */
+/* Retry */
 function doRetry() {
   if (lastFetch) {
     fetchWeather(lastFetch.lat, lastFetch.lon, lastFetch.name, lastFetch.country);
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   KICK OFF
-═══════════════════════════════════════════════════════ */
+/* Kick Off */
 init();
 
 // Default city — Berlin, Germany
