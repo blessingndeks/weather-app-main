@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather Now</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700;1,800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">
+      <img src="assets/images/logo.svg">
+    </div>
+
+    <div class="units-wrapper" id="unitsWrapper">
+      <button class="units-btn" id="unitsBtn" aria-haspopup="true" aria-expanded="false">
+       <img src="assets/images/icon-units.svg">
+        <span>Units</span>
+        <img src="assets/images/icon-dropdown.svg">
+      </button>
+
+      <!-- Units Dropdown Panel -->
+      <div class="units-dropdown" id="unitsDropdown" role="menu" aria-hidden="true">
+        <button class="switch-all-btn" id="switchAllBtn">Switch to Imperial</button>
+
+        <div class="unit-section">
+          <div class="unit-section-lbl">Temperature</div>
+          <div class="unit-opt active" data-group="temp" data-value="celsius" role="menuitemradio">
+            <span>Celsius (°C)</span>
+            <img src="assets/images/icon-checkmark.svg" class="opt-check">
+          </div>
+          <div class="unit-opt" data-group="temp" data-value="fahrenheit" role="menuitemradio">
+            <span>Fahrenheit (°F)</span>
+            <img src="assets/images/icon-checkmark.svg" class="opt-check hidden">
+          </div>
+        </div>
+
+        <div class="unit-section">
+          <div class="unit-section-lbl">Wind Speed</div>
+          <div class="unit-opt active" data-group="wind" data-value="kmh" role="menuitemradio">
+            <span>km/h</span>
+            <img src="assets/images/icon-checkmark.svg" class="opt-check">
+          </div>
+          <div class="unit-opt" data-group="wind" data-value="mph" role="menuitemradio">
+            <span>mph</span>
+            <img src="assets/images/icon-checkmark.svg" class="opt-check hidden">
+          </div>
+        </div>
+
+        <div class="unit-section">
+          <div class="unit-section-lbl">Precipitation</div>
+          <div class="unit-opt active" data-group="precip" data-value="mm" role="menuitemradio">
+            <span>Millimeters (mm)</span>
+            <img src="assets/images/icon-checkmark.svg" class="opt-check">
+          </div>
+          <div class="unit-opt" data-group="precip" data-value="in" role="menuitemradio">
+            <span>Inches (in)</span>
+            <img src="assets/images/icon-checkmark.svg" class="opt-check hidden">
+          </div>
+        </div>
+
+        <!-- Day Picker -->
+        <div class="day-picker-dropdown-outer" id="dayPickerDropdownOuter" style="display:none"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ERROR STATE -->
+  <div class="error-fullpage" id="errorFullpage" style="display:none">
+    <div class="error-icon-wrap">
+      <img src="assets/images/icon-error.svg">
+    </div>
+    <h2 class="error-title">Something went wrong</h2>
+    <p class="error-sub">We couldn't connect to the server (API error). Please try again in a few moments.</p>
+    <button class="retry-btn" id="retryBtn">
+      <img src="assets/images/icon-retry.svg">
+      Retry
+    </button>
+  </div>
+
+  <!-- MAIN -->
+  <main class="main" id="mainContent">
+    <h1 class="page-title">How's the sky looking today?</h1>
+
+    <!-- Search -->
+    <div class="search-section" id="searchSection">
+      <div class="search-bar-row">
+        <div class="search-input-wrap" id="searchInputWrap">
+          <img src="assets/images/icon-search.svg" class="search-mag">
+          <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search for a place..."
+            autocomplete="off"
+            aria-label="Search for a city"
+          />
+        </div>
+        <button class="search-btn" id="searchBtn">Search</button>
+      </div>
+
+      <!-- Search Dropdown -->
+      <div class="search-dropdown" id="searchDropdown" style="display:none">
+        <div class="search-in-progress" id="searchInProgress" style="display:none">
+         <img src="assets/images/icon-loading.svg" class="spin">
+          Search in progress
+        </div>
+        <div id="suggestionsList"></div>
+      </div>
+    </div>
+
+    <!-- No Results State -->
+    <div class="no-results" id="noResults" style="display:none">
+      <p>No search result found!</p>
+    </div>
+
+    <!-- WEATHER LAYOUT -->
+    <div class="weather-layout" id="weatherLayout" style="display:none">
+
+      <!-- Main Weather Panel -->
+      <div class="left-panel">
+
+        <!-- Main Weather Card -->
+        <div class="weather-card" id="weatherCard">
+          <div class="card-skeleton-state" id="cardSkeleton">
+            <div class="loading-dots"><span></span><span></span><span></span></div>
+            <p>Loading...</p>
+          </div>
+          <div class="card-loaded-data" id="cardLoadedData" style="display:none">
+            <div class="card-meta">
+              <div class="card-city" id="cardCity">Berlin, Germany</div>
+              <div class="card-date" id="cardDate">Tuesday, Aug 5, 2025</div>
+            </div>
+            <div class="card-right" id="cardRight">
+              <img class="card-weather-icon" id="cardIcon" src="" alt=""/>
+              <div class="card-temp" id="cardTemp">20°</div>
+            </div>
+          </div>
+          <!-- Floating dots -->
+          <span class="deco deco-1"></span>
+          <span class="deco deco-2"></span>
+          <span class="deco deco-3"></span>
+          <span class="deco deco-4"></span>
+          <span class="deco deco-5"></span>
+          <span class="deco deco-6"></span>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-lbl">Feels Like</div><div class="stat-val" id="statFeels">—</div></div>
+          <div class="stat-card"><div class="stat-lbl">Humidity</div><div class="stat-val" id="statHumidity">—</div></div>
+          <div class="stat-card"><div class="stat-lbl">Wind</div><div class="stat-val" id="statWind">—</div></div>
+          <div class="stat-card"><div class="stat-lbl">Precipitation</div><div class="stat-val" id="statPrecip">—</div></div>
+        </div>
+
+        <!-- Daily forecast -->
+        <section class="daily-section">
+          <h3 class="daily-heading">Daily forecast</h3>
+          <div class="daily-grid" id="dailyGrid">
+            <div class="day-card skeleton"></div>
+            <div class="day-card skeleton"></div>
+            <div class="day-card skeleton"></div>
+            <div class="day-card skeleton"></div>
+            <div class="day-card skeleton"></div>
+            <div class="day-card skeleton"></div>
+            <div class="day-card skeleton"></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Hourly sidebar -->
+      <aside class="hourly-sidebar">
+        <div class="hourly-top">
+          <span class="hourly-title">Hourly forecast</span>
+          <div class="day-picker-wrap" id="dayPickerWrap">
+            <button class="day-picker-btn" id="dayPickerBtn">
+              <span id="dayPickerLabel">–</span>
+              <svg class="chevron" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div class="day-picker-dropdown" id="dayPickerDropdown" style="display:none"></div>
+          </div>
+        </div>
+        <div class="hourly-list" id="hourlyList">
+          <div class="hourly-item skeleton"></div>
+          <div class="hourly-item skeleton"></div>
+          <div class="hourly-item skeleton"></div>
+          <div class="hourly-item skeleton"></div>
+          <div class="hourly-item skeleton"></div>
+          <div class="hourly-item skeleton"></div>
+          <div class="hourly-item skeleton"></div>
+          <div class="hourly-item skeleton"></div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
